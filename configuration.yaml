@@ -1,0 +1,12 @@
+# change parameters' name if your model needs that
+#to see possible optimizers and loss_fun: 
+optimizer: OPTIMIZER_TYPE_ADAM
+loss_fun: LOSS_TYPE_CROSS_ENTROPY
+epochs: 10
+lr: 0.0001
+pretrained: True
+task: detect
+batch_size: 4
+imgsz: [224, 224, 3]
+workers: 4
+seed: 0
