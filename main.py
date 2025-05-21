@@ -1,2 +1,2 @@
-from faivision.modeling.test_config import Config
-Config.generate_template()
+from faivision.modeling.config import Config
+args = Config.from_yaml("configuration.yaml")['optimizer']
