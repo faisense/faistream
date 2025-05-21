@@ -1,15 +1,17 @@
 from faivision.modeling.loggers.base_logger import BaseLogger
-import unittest
+from faivision.modeling.config import Config
 
+import unittest
+args = Config.generate_template()
 class Logger(BaseLogger):
-    def logger(self):
-        return None
+    def __init__(self,):
+        super().__init__(args)
 
 
 class TestConfig(unittest.TestCase):
     def test_folder_creation(self):
         try:
-            l = Logger("configuration.yaml")
+            l = Logger()
             assert True
         except OSError:
             assert True

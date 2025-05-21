@@ -1,29 +1,22 @@
 import os
 from abc import ABC, abstractmethod
-from faivision.modeling.config import Config
-
 class BaseLogger(ABC):
-    def __init__(self, config_file: str = None):
-        self._config_file = config_file
-        self.args = self._load_args()
-        self.log_path = self.args.get('log_path', '.')
-        self.log_dir = self.args.get('log_dir', '')
-        self.exp_name = self.args.get('exp_name', 'experiment')
+    @abstractmethod
+    def __init__(self, args:dict):
+        self._args = args
+        self._log_path = args.get('log_path', '.')
+        self._log_dir = args.get('log_dir', '')
+        self._exp_name = args.get('exp_name', 'experiment')
+        self._path = os.path.join(self._log_path, self._log_dir, self._exp_name)
         self._make_exp_folder()
+        self._logger = None # you must define the logger object
 
     def _make_exp_folder(self):
         try:
-           os.makedirs(os.path.join(self.log_path,self.log_dir,self.exp_name))
+           os.makedirs(self._path)
         except OSError:
             raise OSError("log dir is already exist")
 
-    def _load_args(self) -> dict:
-        if self._config_file:
-            return Config.from_yaml(self._config_file)
-        else:
-            return Config.generate_template()
-
     @abstractmethod
-    def logger(self):
-        """Return the underlying logger object."""
+    def release(self):
         pass

@@ -1,7 +1,6 @@
 from abc import ABC,abstractmethod
 import torch.nn
 class Model(ABC):
-    @abstractmethod
     def __init__(self,name:str,arch:str,task:str,n_params:int,input_shape:tuple,output_shape:tuple,model_obj:torch.nn):
         self.name = name
         self.arch = arch
