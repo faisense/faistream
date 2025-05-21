@@ -4,6 +4,12 @@ from faivision.modeling.config import Config
 import unittest
 args = Config.generate_template()
 class Logger(BaseLogger):
+    def release(self):
+        pass
+
+    def _log_args(self):
+        pass
+
     def __init__(self,):
         super().__init__(args)
 

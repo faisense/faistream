@@ -20,3 +20,10 @@ class BaseLogger(ABC):
     @abstractmethod
     def release(self):
         pass
+
+    @abstractmethod
+    def _log_args(self):
+        pass
+
+    def _args_string(self):
+        return "\n".join([f"{key} = {value}" for key,value in self._args.items()])

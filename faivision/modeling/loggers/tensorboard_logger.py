@@ -8,10 +8,12 @@ from faivision.modeling.loggers.text_logger import TextLogger
 
 
 class TensorboardLogger(BaseLogger, ScalarLogger, TextLogger, ImageLogger):
+
     def __init__(self, args: dict[str, float]):
         super().__init__(args)
 
         self._logger = SummaryWriter(log_dir=self._path)
+        self._log_args()
 
     def _string_args(self) -> str:
         return "\n".join([f"{k} = {v}" for k, v in self._args.items()])
@@ -30,3 +32,7 @@ class TensorboardLogger(BaseLogger, ScalarLogger, TextLogger, ImageLogger):
 
     def release(self):
         self._logger.close()
+
+    def _log_args(self):
+        self._logger.add_text("Args params",self._string_args(),0)
+
