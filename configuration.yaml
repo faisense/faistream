@@ -10,3 +10,6 @@ batch_size: 4
 imgsz: [224, 224, 3]
 workers: 4
 seed: 0
+exp_name: exp1
+log_dir: exps
+log_path: ./

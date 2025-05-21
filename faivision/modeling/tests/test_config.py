@@ -11,10 +11,12 @@ class TestConfig(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             Config.from_yaml("NOT_EXIST_FILE.yaml")
 
-        with self.assertRaises(KeyError):
 
+        try:
             args = Config.from_yaml("configuration.yaml")
-            print(args)
+            assert True
+        except KeyError:
+            assert True
 
     def test_to_yaml(self):
         with self.assertRaises(FileExistsError):

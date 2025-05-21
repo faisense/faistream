@@ -11,14 +11,16 @@ class LossType(Enum):
     CROSS_ENTROPY = CrossEntropyLoss
 
 class Config:
-
     @staticmethod
     def __compile(args):
         try:
             args['optimizer'] = OptimizerType[args['optimizer'].upper()].value
             args['loss_fun'] = LossType[args['loss_fun'].upper()].value
+
         except KeyError:
             raise KeyError("The Optimizer or loss_fun type is not exist. please check the available ones on: X")
+
+
 
         """
 
@@ -42,6 +44,9 @@ class Config:
                     imgsz=[224, 224, 3],
                     workers=4,
                     seed=0,
+                    exp_name="exp1",
+                    log_dir="exps",
+                    log_path="./"
                     )
         with open('configuration.yaml',mode='w') as f:
 
