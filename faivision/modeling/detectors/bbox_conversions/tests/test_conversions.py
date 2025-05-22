@@ -9,8 +9,8 @@ xyxy = [10, 20, 30, 40]  # example bbox in xyxy
 expected_xywh = [20, 30, 20, 20]  # example expected xywh
 
 image_w, image_h = 640, 480
-yolo = [0.5, 0.5, 0.2, 0.3]  # normalized
-expected_voc = [256, 168, 384, 312]
+yolo = [[0.5, 0.5, 0.2, 0.3],[0.5, 0.5, 0.2, 0.3],[0.5, 0.5, 0.2, 0.3]]  # normalized
+expected_voc = [[256, 168, 384, 312],[256, 168, 384, 312],[256, 168, 384, 312]]
 
 
 class TestConfig(unittest.TestCase):
