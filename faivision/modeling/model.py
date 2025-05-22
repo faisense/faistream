@@ -11,6 +11,12 @@ class Model(ABC):
         self.model_obj = model_obj
 
     @abstractmethod
+    def preprocess(self,inputs):
+        pass
+    @abstractmethod
+    def postprocess(self,outputs):
+        pass
+    @abstractmethod
     def load(self):
         pass
     @abstractmethod

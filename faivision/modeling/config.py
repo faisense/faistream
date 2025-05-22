@@ -2,7 +2,7 @@ import yaml
 import os
 from enum import Enum
 from torch.optim import Adam,SGD,AdamW
-from torch.nn import CrossEntropyLoss
+from faivision.modeling.losses.cross_entropy_loss import CrossEntropyLoss
 class OptimizerType(Enum):
     ADAM=Adam
     SGD=SGD
@@ -36,6 +36,7 @@ class Config:
         """
         args = dict(optimizer='ADAM',
                     loss_fun="CROSS_ENTROPY",
+                    weight_decay=0,
                     epochs=10,
                     lr=0.0001,
                     pretrained=True,
