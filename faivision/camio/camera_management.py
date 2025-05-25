@@ -2,7 +2,9 @@ from faivision.camio.camera import Camera
 from faivision.configs.camera_config import CamerasConfig
 class CamerasManagement:
     def __init__(self,cameras_dict:dict[str,Camera]):
-        self.cameras = cameras_dict.values()
+        self.cameras = cameras_dict
+
+
     def camera_counts(self):
         return len(self.cameras.keys())
     def add_camera(self,camera:Camera):
@@ -29,7 +31,11 @@ class CamerasManagement:
 
     def start_all(self):
         for camera in self.cameras.values():
-            camera.
+            camera.start_capture()
+
+
+    def get_cameras_status(self):
+        return [camera.test_connection() for camera in self.cameras.values()]
 
 
 

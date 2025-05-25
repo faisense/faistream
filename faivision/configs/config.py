@@ -28,6 +28,7 @@ class Config(ABC):
         raise FileNotFoundError
 
     @classmethod
+    @abstractmethod
     def to_yaml(cls, filename, args):
 
             with open(f'{filename}.yaml', mode='x') as f:

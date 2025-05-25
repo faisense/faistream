@@ -1,12 +1,7 @@
-from urllib.parse import urlparse, urlunparse
-
 import cv2
-
-from faivision.camio.ip import IP
-
-
 from faivision.camio.ip import IP
 from faivision.camio.camera_state import CameraState
+
 
 class Camera:
     def __init__(
@@ -21,71 +16,111 @@ class Camera:
         resolution: tuple[int, int],
         fps: int,
         timeout: int,
-        status: CameraState = CameraState.OFF,
+        status: CameraState = CameraState.OFFLINE,
         streams_limit: int = 1,
     ):
-        self.id = camera_id
+        self._capture = None
+        self.camera_id = camera_id
         self._ip = IP(ip) if not isinstance(ip, IP) else ip
-        self.username = username
-        self.password = password
-        self.port = port
-        self.url = url
+        self._username = username
+        self._password = password
+        self._port = port
+        self._url = url
         self.desc = desc
-        self.resolution = resolution
-        self.fps = fps
-        self.timeout = timeout
-        self.status = status if isinstance(status, CameraState) else CameraState[status.upper()]
-        self.streams_limit = streams_limit
+        self._resolution = resolution
+        self._fps = fps
+        self._timeout = timeout
+        self._status = status if isinstance(status, CameraState) else CameraState[status.upper()]
+        self._streams_limit = streams_limit
 
     def __str__(self):
-        lines = [
-            f"id: {self.id}",
+        attr = [
+            f"id: {self.camera_id}",
             f"ip: {self._ip.get_ip()}",
-            f"username: {self.username}",
-            f"password: {self.password}",
-            f"port: {self.port}",
-            f"url: {self.url}",
+            f"username: {self._username}",
+            f"password: {self._password}",
+            f"port: {self._port}",
+            f"url: {self._url}",
             f"desc: {self.desc}",
-            f"resolution: [{self.resolution[0]}, {self.resolution[1]}]",
-            f"fps: {self.fps}",
-            f"timeout: {self.timeout}",
-            f"status: {self.status.name}",
-            f"streams_limit: {self.streams_limit}",
+            f"resolution: [{self._resolution[0]}, {self._resolution[1]}]",
+            f"fps: {self._fps}",
+            f"timeout: {self._timeout}",
+            f"status: {self._status.name}",
+            f"streams_limit: {self._streams_limit}",
         ]
-        return "\n".join(lines)
+        return "\n".join(attr)
+
+    def __repr__(self):
+        attr = [
+            f"id: {self.camera_id}",
+            f"ip: {self._ip.get_ip()}",
+            f"username: {self._username}",
+            f"password: {self._password}",
+            f"port: {self._port}",
+            f"url: {self._url}",
+            f"desc: {self.desc}",
+            f"resolution: [{self._resolution[0]}, {self._resolution[1]}]",
+            f"fps: {self._fps}",
+            f"timeout: {self._timeout}",
+            f"status: {self._status.name}",
+            f"streams_limit: {self._streams_limit}",
+        ]
+        return "Camera_object(" + ", ".join(attr) + ")"
 
     def props_to_dict(self):
         return {
-            "id": self.id,
+            "camera_id": self.camera_id,
             "ip": self._ip.get_ip(),
-            "username": self.username,
-            "password": self.password,
-            "port": self.port,
-            "url": self.url,
+            "username": self._username,
+            "password": self._password,
+            "port": self._port,
+            "url": self._url,
             "desc": self.desc,
-            "resolution": list(self.resolution),
-            "fps": self.fps,
-            "timeout": self.timeout,
-            "status": self.status.name,
-            "streams_limit": self.streams_limit,
+            "resolution": list(self._resolution),
+            "fps": self._fps,
+            "timeout": self._timeout,
+            "status": self._status.name,
+            "streams_limit": self._streams_limit,
         }
 
     def get_ip(self):
         return self._ip.get_ip()
+
     def test_connection(self):
-        cap = cv2.VideoCapture(self.url)
-        cap.set(cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, self.timeout)
+        cap = cv2.VideoCapture(self._url)
+        cap.set(cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, self._timeout)
 
         if not cap.isOpened():
+            self._status = CameraState.OFFLINE
             return False
 
         ret, _ = cap.read()
         cap.release()
 
-        return ret
+        if ret:
+            self._status = CameraState.ONLINE
+            return True
+        else:
+            self._status = CameraState.ERROR
+            return False
 
     def start_capture(self):
-        pass
+        if self._capture is not None and self._capture.isOpened():
+            return  # Already capturing
+
+        if not self.test_connection():
+            self._status = CameraState.OFFLINE
+            raise ConnectionError("Camera is not reachable or stream is invalid.")
+
+        self._capture = cv2.VideoCapture(self._url)
+        self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._resolution[0])
+        self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._resolution[1])
+        self._capture.set(cv2.CAP_PROP_FPS, self._fps)
+
+        self._status = CameraState.ONLINE
 
     def stop_capture(self):
-        pass
+        if self._capture is not None:
+            self._capture.release()
+            self._capture = None
+            self._status = CameraState.OFFLINE
