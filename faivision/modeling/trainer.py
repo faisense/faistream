@@ -12,8 +12,9 @@ class Trainer:
         self._model = model
         self.loaders = dataloaders
         self.logger = logger
-        self.device = device if device == 'cuda' else 'cpu'
+        self.device = device
         self.current_epoch = 0
+
 
 
     def _send_to_logger(self):
@@ -48,6 +49,7 @@ class Trainer:
         self.current_epoch = 1
         for _ in range(self.args['epochs']):
             self._train_one_epoch()
+            self.current_epoch += 1
 
     def at_epoch_end_event(self, callback_fun=None):
         if callback_fun:

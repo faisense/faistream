@@ -1,7 +1,6 @@
 import os
 from abc import ABC, abstractmethod
 class BaseLogger(ABC):
-    @abstractmethod
     def __init__(self, args:dict):
         self._args = args
         self._log_path = args.get('log_path', '.')

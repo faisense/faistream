@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from faivision.modeling.detectors.bbox_conversions.xywh import XYWH
-from faivision.modeling.detectors.bbox_conversions.xywh_normalized import XYWHNormalized
+from faivision.modeling.detectors.bboxes.xywh import XYWH
+from faivision.modeling.detectors.bboxes.xywh_normalized import XYWHNormalized
 
 xyxy = [10, 20, 30, 40]  # example bbox in xyxy
 expected_xywh = [20, 30, 20, 20]  # example expected xywh

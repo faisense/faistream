@@ -1,6 +1,6 @@
 import numpy as np
 
-from faivision.modeling.detectors.bbox_conversions.bbox import BBox
+from faivision.modeling.detectors.bboxes.bbox import BBox
 
 class XYWHNormalized(BBox):
     @staticmethod

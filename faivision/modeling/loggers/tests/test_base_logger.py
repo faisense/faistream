@@ -1,8 +1,8 @@
 from faivision.modeling.loggers.base_logger import BaseLogger
-from faivision.modeling.config import Config
+from faivision.configs.train_config import TrainConfig
 
 import unittest
-args = Config.generate_template()
+args = TrainConfig.generate_template()
 class Logger(BaseLogger):
     def release(self):
         pass

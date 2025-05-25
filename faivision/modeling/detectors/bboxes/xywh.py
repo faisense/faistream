@@ -1,6 +1,6 @@
 import numpy as np
 
-from faivision.modeling.detectors.bbox_conversions.bbox import BBox
+from faivision.modeling.detectors.bboxes.bbox import BBox
 class XYWH(BBox):
     @staticmethod
     def convert_to_xyxy(bbox:tuple[float,float,float,float],**kwargs):
