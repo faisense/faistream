@@ -30,8 +30,7 @@ class CamerasConfig(Config):
         cameras_dict = {}
         for cam_dict in cameras_list:
             camera = CamerasConfig._create_camera_from_dict(cam_dict)
-            ip_str = camera.get_ip()
-            cameras_dict[ip_str] = camera
+            cameras_dict[camera.camera_id] = camera
 
         args.clear()
         args.update(cameras_dict)

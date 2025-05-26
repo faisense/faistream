@@ -11,14 +11,14 @@ class TestCamIO(unittest.TestCase):
             assert True
 
     def test_cameras_list(self):
-        cameras = CamerasConfig.from_yaml("cameras.yaml")
+        cameras = CamerasConfig.from_yaml("../../../cameras.yaml")
         try:
             CamerasConfig.to_yaml("cameras_to_yaml", cameras)
             assert True
         except FileExistsError:
             assert True
 
-        assert filecmp.cmp("cameras.yaml","cameras_to_yaml.yaml",shallow=False)
+        assert filecmp.cmp("../../../cameras.yaml", "cameras_to_yaml.yaml", shallow=False)
 
 
 

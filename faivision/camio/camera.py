@@ -21,7 +21,7 @@ class Camera:
     ):
         self._capture = None
         self.camera_id = camera_id
-        self._ip = IP(ip) if not isinstance(ip, IP) else ip
+        self._ip = IP(ip)
         self._username = username
         self._password = password
         self._port = port
@@ -91,22 +91,16 @@ class Camera:
         cap.set(cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, self._timeout)
 
         if not cap.isOpened():
-            self._status = CameraState.OFFLINE
             return False
 
         ret, _ = cap.read()
         cap.release()
 
-        if ret:
-            self._status = CameraState.ONLINE
-            return True
-        else:
-            self._status = CameraState.ERROR
-            return False
+        return ret
 
     def start_capture(self):
         if self._capture is not None and self._capture.isOpened():
-            return  # Already capturing
+            return True  # Already capturing
 
         if not self.test_connection():
             self._status = CameraState.OFFLINE
@@ -118,9 +112,22 @@ class Camera:
         self._capture.set(cv2.CAP_PROP_FPS, self._fps)
 
         self._status = CameraState.ONLINE
+        return True
 
     def stop_capture(self):
         if self._capture is not None:
             self._capture.release()
             self._capture = None
             self._status = CameraState.OFFLINE
+
+    def read_frame(self):
+        if self._capture is None or not self._capture.isOpened():
+            raise RuntimeError("Capture device is not opened.")
+
+        print(self.camera_id, self._capture.get(cv2.CAP_PROP_FPS))
+        ret, frame = self._capture.read()
+        if not ret:
+            self._status = CameraState.ERROR
+            raise RuntimeError("Failed to read frame from camera.")
+
+        return cv2.resize(frame,self._resolution)
