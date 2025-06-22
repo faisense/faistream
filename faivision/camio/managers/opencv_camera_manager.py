@@ -5,8 +5,8 @@ from faivision.camio.managers.cameras_managers import CamerasManager
 from concurrent.futures import ThreadPoolExecutor
 
 class OpencvCameraManager(CamerasManager):
-    def __init__(self, cameras_dict: dict[str, Camera], n_workers=4):
-        super().__init__(cameras_dict, n_workers)
+    def __init__(self, cameras_dict: dict[str, Camera]):
+        super().__init__(cameras_dict)
 
     def camera_counts(self):
         return len(self.cameras.keys())
@@ -34,7 +34,7 @@ class OpencvCameraManager(CamerasManager):
 
     def start_all(self):
         for camera in self.cameras.values():
-            camera.start_capture()
+            camera.process.start()
 
     def stop_all(self):
         for camera in self.cameras.values():
@@ -43,13 +43,7 @@ class OpencvCameraManager(CamerasManager):
     def get_cameras_status(self):
         return [camera.test_connection() for camera in self.cameras.values()]
 
-    def read_all_frames(self):
-        with ThreadPoolExecutor(max_workers=self.n_workers) as executor:
-            futures = {
-                executor.submit(camera.read_frame): camera.camera_id
-                for camera in self.cameras.values()
-            }
-            return {camera_id: future.result() for future, camera_id in futures.items()}
+    
     def __repr__(self):
         return "\n".join([str(cam) for cam in self.cameras.values()])
 

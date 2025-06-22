@@ -5,9 +5,8 @@ from faivision.subject import Subject
 
 
 class CamerasManager(ABC):
-    def __init__(self,cameras_dict:dict[str,Camera],n_workers=4):
+    def __init__(self,cameras_dict:dict[str,Camera]):
         self.cameras = cameras_dict
-        self.n_workers = n_workers
 
 
     def camera_counts(self):
@@ -37,9 +36,7 @@ class CamerasManager(ABC):
     def get_cameras_status(self):
         pass
 
-    @abstractmethod
-    def read_all_frames(self):
-        pass
+
     @abstractmethod
     def __repr__(self):
         pass

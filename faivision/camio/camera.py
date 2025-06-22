@@ -1,7 +1,7 @@
 import cv2
 from faivision.camio.ip import IP
 from faivision.camio.camera_state import CameraState
-
+from multiprocessing import Process
 
 class Camera:
     def __init__(
@@ -32,6 +32,7 @@ class Camera:
         self._timeout = timeout
         self._status = status if isinstance(status, CameraState) else CameraState[status.upper()]
         self._streams_limit = streams_limit
+        self.process = Process(target=self.read_frame)
 
     def __str__(self):
         attr = [
@@ -98,14 +99,14 @@ class Camera:
 
         return ret
 
-    def start_capture(self):
+    def _start_capture(self):
         if self._capture is not None and self._capture.isOpened():
             return True  # Already capturing
 
         if not self.test_connection():
             self._status = CameraState.OFFLINE
             raise ConnectionError("Camera is not reachable or stream is invalid.")
-
+        print("started again")
         self._capture = cv2.VideoCapture(self._url)
         self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._resolution[0])
         self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._resolution[1])
@@ -121,13 +122,17 @@ class Camera:
             self._status = CameraState.OFFLINE
 
     def read_frame(self):
+        self._start_capture()
         if self._capture is None or not self._capture.isOpened():
             raise RuntimeError("Capture device is not opened.")
+        while True:
 
-        print(self.camera_id, self._capture.get(cv2.CAP_PROP_FPS))
-        ret, frame = self._capture.read()
-        if not ret:
-            self._status = CameraState.ERROR
-            raise RuntimeError("Failed to read frame from camera.")
+            ret, frame = self._capture.read()
+            if not ret:
+                self._status = CameraState.ERROR
+                raise RuntimeError("Failed to read frame from camera.")
 
-        return cv2.resize(frame,self._resolution)
+            cv2.imshow(self.camera_id,frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
