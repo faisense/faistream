@@ -1,7 +1,12 @@
 import cv2
+import numpy as np
+
 from faivision.camio.ip import IP
 from faivision.camio.camera_state import CameraState
 from multiprocessing import Process
+
+from faivision.messaging_system import Publisher
+
 
 class Camera:
     def __init__(
@@ -16,6 +21,7 @@ class Camera:
         resolution: tuple[int, int],
         fps: int,
         timeout: int,
+        publisher: Publisher,
         status: CameraState = CameraState.OFFLINE,
         streams_limit: int = 1,
     ):
@@ -33,6 +39,7 @@ class Camera:
         self._status = status if isinstance(status, CameraState) else CameraState[status.upper()]
         self._streams_limit = streams_limit
         self.process = Process(target=self.read_frame)
+        self._publisher = publisher
 
     def __str__(self):
         attr = [
@@ -106,7 +113,6 @@ class Camera:
         if not self.test_connection():
             self._status = CameraState.OFFLINE
             raise ConnectionError("Camera is not reachable or stream is invalid.")
-        print("started again")
         self._capture = cv2.VideoCapture(self._url)
         self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._resolution[0])
         self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._resolution[1])
@@ -132,8 +138,4 @@ class Camera:
                 self._status = CameraState.ERROR
                 raise RuntimeError("Failed to read frame from camera.")
 
-            cv2.imshow(self.camera_id,frame)
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        self.stop_capture()
+            self._publisher.get_socket().send(frame.tobytes())

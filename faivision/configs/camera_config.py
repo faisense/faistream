@@ -4,24 +4,27 @@ import yaml
 from faivision.configs.config import Config
 from faivision.camio.camera_state import CameraState
 from faivision.camio.camera import Camera
+from faivision.messaging_system import Publisher
 
 
 class CamerasConfig(Config):
     @staticmethod
     def _create_camera_from_dict(cam_dict):
+        publisher_info = cam_dict.get('publisher_info')
         return Camera(
             camera_id=cam_dict['camera_id'],
             ip=cam_dict['ip'],
-            username=cam_dict.get('username', ''),
-            password=cam_dict.get('password', ''),
+            username=cam_dict.get('username', 'admin'),
+            password=cam_dict.get('password', 'admin123'),
             port=cam_dict.get('port', 554),
             url=cam_dict.get('url', ''),
             desc=cam_dict.get('desc', ''),
-            resolution=tuple(cam_dict.get('resolution', (0, 0))),
-            fps=cam_dict.get('fps', 0),
+            resolution=tuple(cam_dict.get('resolution', (1920, 1080))),
+            fps=cam_dict.get('fps', 15),
             timeout=cam_dict.get('timeout', 2),
             status=CameraState[cam_dict.get('status', 'OFFLINE').upper()] if 'status' in cam_dict else CameraState.OFFLINE,
             streams_limit=cam_dict.get('streams_limit', 1),
+            publisher= Publisher(**publisher_info)
         )
 
     @staticmethod
@@ -72,6 +75,14 @@ class CamerasConfig(Config):
                     'timeout': 2,
                     'streams_limit': 2,
                     'status': 'ONLINE',
+                    'publisher_info':{
+                        'interface':"localhost",
+                        'port':5555,
+                        'n_threads':1,
+                        'protocol':'tcp'
+
+
+                    }
                 },
                 {
                     'camera_id': 'cam02',
@@ -86,6 +97,13 @@ class CamerasConfig(Config):
                     'timeout': 2,
                     'streams_limit': 1,
                     'status': 'OFFLINE',
+                    'publisher_info': {
+                        'interface': "localhost",
+                        'port': 5555,
+                        'n_threads': 1,
+                        'protocol': 'tcp'
+
+                    }
                 },
             ]
         }

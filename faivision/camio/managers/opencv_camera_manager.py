@@ -2,7 +2,6 @@ import multiprocessing
 
 from faivision.camio.camera import Camera
 from faivision.camio.managers.cameras_managers import CamerasManager
-from concurrent.futures import ThreadPoolExecutor
 
 class OpencvCameraManager(CamerasManager):
     def __init__(self, cameras_dict: dict[str, Camera]):
