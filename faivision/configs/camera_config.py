@@ -10,7 +10,6 @@ from faivision.messaging_system import Publisher
 class CamerasConfig(Config):
     @staticmethod
     def _create_camera_from_dict(cam_dict):
-        publisher_info = cam_dict.get('publisher_info')
         return Camera(
             camera_id=cam_dict['camera_id'],
             ip=cam_dict['ip'],
@@ -24,7 +23,7 @@ class CamerasConfig(Config):
             timeout=cam_dict.get('timeout', 2),
             status=CameraState[cam_dict.get('status', 'OFFLINE').upper()] if 'status' in cam_dict else CameraState.OFFLINE,
             streams_limit=cam_dict.get('streams_limit', 1),
-            publisher= Publisher(**publisher_info)
+            publisher_info=cam_dict['publisher_info']
         )
 
     @staticmethod

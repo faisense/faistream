@@ -21,7 +21,7 @@ class Camera:
         resolution: tuple[int, int],
         fps: int,
         timeout: int,
-        publisher: Publisher,
+        publisher_info,
         status: CameraState = CameraState.OFFLINE,
         streams_limit: int = 1,
     ):
@@ -38,8 +38,8 @@ class Camera:
         self._timeout = timeout
         self._status = status if isinstance(status, CameraState) else CameraState[status.upper()]
         self._streams_limit = streams_limit
-        self.process = Process(target=self.read_frame)
-        self._publisher = publisher
+        self.publisher_info = publisher_info
+        self.process = Process(target=self._read_frame,kwargs=self.publisher_info)
 
     def __str__(self):
         attr = [
@@ -127,8 +127,11 @@ class Camera:
             self._capture = None
             self._status = CameraState.OFFLINE
 
-    def read_frame(self):
+    def _read_frame(self,interface,port,n_threads,protocol):
         self._start_capture()
+
+        publisher = Publisher(interface,port,n_threads,protocol)
+        
         if self._capture is None or not self._capture.isOpened():
             raise RuntimeError("Capture device is not opened.")
         while True:
@@ -137,5 +140,4 @@ class Camera:
             if not ret:
                 self._status = CameraState.ERROR
                 raise RuntimeError("Failed to read frame from camera.")
-
-            self._publisher.get_socket().send(frame.tobytes())
+            publisher.get_socket().send(frame.tobytes())
