@@ -1,14 +1,14 @@
 from abc import ABC,abstractmethod
-import torch.nn
-class Model(ABC):
-    def __init__(self,name:str,arch:str,task:str,n_params:int,input_shape:tuple,output_shape:tuple,model_obj:torch.nn):
+from torch.nn import Module 
+class Model(ABC,Module):
+    def __init__(self,name:str,arch:str,model_obj:Module,device="cuda"):
+        super().__init__()
         self.name = name
         self.arch = arch
-        self.task = task
-        self.n_params = n_params
-        self.input_shape = input_shape
-        self.output_shape = output_shape
-        self.model_obj = model_obj
+        self.model_obj:Module = model_obj
+        self.model_obj.to(device)
+
+
 
     @abstractmethod
     def preprocess(self,inputs):
@@ -16,15 +16,10 @@ class Model(ABC):
     @abstractmethod
     def postprocess(self,outputs):
         pass
-    @abstractmethod
-    def load(self):
-        pass
-    @abstractmethod
-    def save(self):
-        pass
-    @abstractmethod
+    
     def forward(self,inputs):
-        pass
-    @abstractmethod
-    def evaluate(self,dataloader):
-        pass
+        result = self.preprocess(inputs)
+        result = self.model_obj.forward(result)
+        result = self.postprocess(result)
+
+        return result        

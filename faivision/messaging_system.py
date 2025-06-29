@@ -4,6 +4,7 @@ class Publisher:
         self._context = zmq.Context(io_threads=n_threads)
 
         self._socket = self._context.socket(zmq.SocketType.PUB)
+        self._socket.setsockopt(zmq.CONFLATE,1)
         self._socket.bind(f"{protocol}://{interface}:{port}")
 
     def send(self,inputs:bytes):
@@ -18,6 +19,8 @@ class Subscriber:
         self._context = zmq.Context(n_threads)
 
         self._socket = self._context.socket(zmq.SocketType.SUB)
+        self._socket.setsockopt(zmq.CONFLATE,1)
+
         self._socket.connect(f"{protocol}://{interface}:{port}")
         self._socket.subscribe("".encode())
 
