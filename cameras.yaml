@@ -6,8 +6,8 @@ cameras:
   password: 123123ccc
   port: 554
   resolution:
-  - 1280
-  - 720
+  - 1080
+  - 1920
   status: ONLINE
   streams_limit: 2
   timeout: 2
@@ -16,8 +16,8 @@ cameras:
   publisher_info:
     'interface': localhost
     'port': 5555
-    'n_threads': 1
-    'protocol': tcp
+    'n_threads': 6
+    'protocol': ipc
 
 #- camera_id: cam02
 #  desc: Front Door
@@ -42,8 +42,8 @@ cameras:
   password: Wakeb2030
   port: 554
   resolution:
-  - 1280
-  - 720
+  - 1080
+  - 1920
   status: ONLINE
   streams_limit: 2
   timeout: 2
@@ -52,8 +52,8 @@ cameras:
   publisher_info:
     'interface': localhost
     'port': 5556
-    'n_threads': 1
-    'protocol': tcp
+    'n_threads': 6
+    'protocol': ipc
 
 
 

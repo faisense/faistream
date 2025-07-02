@@ -20,7 +20,7 @@ def worker_inference(model:YOLO,cam_name,cam_resolution:tuple[int,int],interface
         t1 = time.time()
         frame = frame_grabber.execute()
 
-        output = model.predict(frame,conf=0.6)[0]
+        output = model.predict(frame,conf=0.6,verbose=False)[0]
 
         detections = sv.Detections.from_ultralytics(output)
 

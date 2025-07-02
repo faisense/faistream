@@ -106,43 +106,60 @@ class ZMQCamera:
         return ret
 
     def _start_capture(self):
-        if self._capture is not None and self._capture.isOpened():
-            return CameraState.ONLINE  # Already capturing
-
-        if not self.test_connection():
-            return CameraState.OFFLINE
-        self._capture = cv2.VideoCapture(self._url)
-        self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._resolution[0])
-        self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._resolution[1])
-        self._capture.set(cv2.CAP_PROP_FPS, self._fps)
-        self._capture.set(cv2.CAP_PROP_OPEN_TIMEOUT_MSEC, self._timeout)
+        print("initlizing new cap")
+        if self._capture is None:
+            self._capture = cv2.VideoCapture(self._url)
+            self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._resolution[0])
+            self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._resolution[1])
+            self._capture.set(cv2.CAP_PROP_FPS, self._fps)
+            # self._capture.set(cv2.CAP_PROP_READ_TIMEOUT_MSEC,3000)
+            # self._capture.set(cv2.CAP_PROP_BUFFERSIZE,1)
 
 
-        return CameraState.ONLINE
+
+
+
+
+
+
 
     def stop_capture(self):
+        print("stop capture triggered.")
         if self._capture is not None:
             self._capture.release()
             self._capture = None
             return CameraState.OFFLINE
-        return CameraState.ONLINE
+        raise RuntimeError("tried to stop camera already OFF.")
+
 
     def _read_frame(self,interface,port,n_threads,protocol,cam_name):
-        self._start_capture()
+
 
         publisher = Publisher(interface,port,n_threads,protocol)
         shared_state_dict = SharedMemoryDict(name='cameras_state', size=1024)
-        shared_state_dict[cam_name] = CameraState.ONLINE
+
+        self._start_capture()
+        while True:
+
+            print("at the beggining of the loop after start capture:",shared_state_dict)
+            if self._capture:
+                print("I am before Read")
+                ret, frame = self._capture.read()
+                print("I am after Read")
+
+                if frame is not None:
+                    shared_state_dict[cam_name] = CameraState.ONLINE
+                    publisher.get_socket().send(frame.tobytes())
+                else:
+                    shared_state_dict[cam_name] = CameraState.OFFLINE
+                    self.stop_capture()
+                    self._start_capture()
 
 
-        while self._status is CameraState.ONLINE:
 
-            ret, frame = self._capture.read()
-            if not ret:
-                shared_state_dict[cam_name] = CameraState.OFFLINE
-                shared_state_dict[cam_name] = self._start_capture()
 
-            publisher.get_socket().send(frame.tobytes())
+            print("at the end of the loop:",shared_state_dict)
+
 
     @property
     def resolution(self):

@@ -38,10 +38,11 @@ class OpencvCameraManager(CamerasManager):
             return False
 
     def start_all(self):
+        self.cameras_states.clear()
         for camera in self.cameras.values():
             camera.process.start()
 
-        self._status_thread.start()
+        # self._status_thread.start()
 
 
     def stop_all(self):
