@@ -26,4 +26,12 @@ class Subscriber:
 
     def get_socket(self):
         return self._socket
-    
+
+
+
+#test cases of socker opt:
+#      Publisher   Subscriber
+# case IMMEDIATE X IMMEDIATE: high latency
+# case IMMediate X CONFLATE: latency is different between subsribers.
+# case CONFLATE  X IMMEDIATE: high latency
+# case CONFLATE  X CONFLATE: best option since it balances all subscribers and low latency.

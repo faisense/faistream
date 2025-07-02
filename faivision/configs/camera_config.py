@@ -3,14 +3,14 @@ import yaml
 
 from faivision.configs.config import Config
 from faivision.camio.camera_state import CameraState
-from faivision.camio.camera import Camera
+from faivision.camio.zmqcamera import ZMQCamera
 from faivision.messaging_system import Publisher
 
 
 class CamerasConfig(Config):
     @staticmethod
     def _create_camera_from_dict(cam_dict):
-        return Camera(
+        return ZMQCamera(
             camera_id=cam_dict['camera_id'],
             ip=cam_dict['ip'],
             username=cam_dict.get('username', 'admin'),

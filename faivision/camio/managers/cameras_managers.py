@@ -1,11 +1,11 @@
 from abc import ABC,abstractmethod
 
-from faivision.camio.camera import Camera
+from faivision.camio.zmqcamera import ZMQCamera
 from faivision.subject import Subject
 
 
 class CamerasManager(ABC):
-    def __init__(self,cameras_dict:dict[str,Camera]):
+    def __init__(self, cameras_dict:dict[str,ZMQCamera]):
         self.cameras = cameras_dict
 
 
@@ -14,14 +14,14 @@ class CamerasManager(ABC):
 
 
     @abstractmethod
-    def add_camera(self,cam:Camera):
+    def add_camera(self, cam:ZMQCamera):
         pass
 
     @abstractmethod
     def delete_camera(self,cam_id):
         pass
     @abstractmethod
-    def modify_camera(self,cam_id:str,camera:Camera):
+    def modify_camera(self, cam_id:str, camera:ZMQCamera):
         pass
 
     @abstractmethod

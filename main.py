@@ -8,8 +8,6 @@ from faivision.strutures.frame_grabber import FrameGrabber
 import torch
 import torch.multiprocessing as mp
 import supervision as sv
-
-
 from ultralytics.models.yolo import YOLO
 def display_frame(frame):
     pass
@@ -22,7 +20,7 @@ def worker_inference(model:YOLO,cam_name,cam_resolution:tuple[int,int],interface
         t1 = time.time()
         frame = frame_grabber.execute()
 
-        output = model.predict(frame)[0]
+        output = model.predict(frame,conf=0.6)[0]
 
         detections = sv.Detections.from_ultralytics(output)
 
@@ -53,7 +51,7 @@ if __name__ == "__main__":
     camerasManager = OpencvCameraManager(cameras_dict)
     camerasManager.start_all()
 
-    m = YOLO("yolo11n.pt")
+    m = YOLO("yolo11s.pt")
 
     #
     for cam in camerasManager.cameras.values():
