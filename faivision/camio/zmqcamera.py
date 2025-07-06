@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 from shared_memory_dict import SharedMemoryDict
@@ -112,8 +114,7 @@ class ZMQCamera:
             self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._resolution[0])
             self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._resolution[1])
             self._capture.set(cv2.CAP_PROP_FPS, self._fps)
-            # self._capture.set(cv2.CAP_PROP_READ_TIMEOUT_MSEC,3000)
-            # self._capture.set(cv2.CAP_PROP_BUFFERSIZE,1)
+
 
 
 
@@ -129,7 +130,6 @@ class ZMQCamera:
             self._capture.release()
             self._capture = None
             return CameraState.OFFLINE
-        raise RuntimeError("tried to stop camera already OFF.")
 
 
     def _read_frame(self,interface,port,n_threads,protocol,cam_name):
@@ -141,15 +141,17 @@ class ZMQCamera:
         self._start_capture()
         while True:
 
-            print("at the beggining of the loop after start capture:",shared_state_dict)
             if self._capture:
-                print("I am before Read")
+                t1 = time.time()
                 ret, frame = self._capture.read()
-                print("I am after Read")
+                t2 = time.time()
 
+                if (t2-t1) >= 30:
+                    frame = None
                 if frame is not None:
                     shared_state_dict[cam_name] = CameraState.ONLINE
                     publisher.get_socket().send(frame.tobytes())
+
                 else:
                     shared_state_dict[cam_name] = CameraState.OFFLINE
                     self.stop_capture()
@@ -158,7 +160,6 @@ class ZMQCamera:
 
 
 
-            print("at the end of the loop:",shared_state_dict)
 
 
     @property

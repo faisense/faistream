@@ -59,9 +59,9 @@ if __name__ == "__main__":
         port = cam.publisher_info['port']
         n_threads = cam.publisher_info['n_threads']
         protocol = cam.publisher_info['protocol']
-        for i in range(n_threads):
-            p = mp.Process(target=worker_inference, args=(m, f"{cam.camera_id}_{i}", cam.resolution,interface,port,n_threads,protocol))
-            p.start()
+        # for i in range(n_threads):
+        p = mp.Process(target=worker_inference, args=(m, f"{cam.camera_id}_{9}", cam.resolution,interface,port,n_threads,protocol))
+        p.start()
 
 
 

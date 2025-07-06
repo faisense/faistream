@@ -8,7 +8,11 @@ class Publisher:
         self._context = zmq.Context(io_threads=n_threads)
 
         self._socket = self._context.socket(zmq.SocketType.PUB)
+        self._socket.setsockopt(zmq.CONFLATE,1)
         self._socket.bind(f"{protocol}://{interface}:{port}")
+
+    def send(self,inputs:bytes):
+        self._socket.send(inputs)
 
     def get_socket(self):
         return self._socket
@@ -22,4 +26,4 @@ if __name__ == '__main__':
 
 
     camerasManager = OpencvCameraManager(cameras_dict)
-    camerasManager.cameras['cam01'].process.start()
+    camerasManager.start_all()

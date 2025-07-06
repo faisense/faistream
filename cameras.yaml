@@ -14,27 +14,11 @@ cameras:
   url: rtsp://admin:123123ccc@192.168.126.121:554/Streaming/Channels/101/
   username: admin
   publisher_info:
-    'interface': localhost
+    'interface': 192.168.126.240
     'port': 5555
     'n_threads': 6
-    'protocol': ipc
-
-#- camera_id: cam02
-#  desc: Front Door
-#  fps: 30
-#  ip: 192.168.126.221
-#  password: 123123ccc
-#  port: 554
-#  resolution:
-#  - 1280
-#  - 720
-#  status: ONLINE
-#  streams_limit: 2
-#  timeout: 2
-#  url: rtsp://admin:123123ccc@192.168.126.121:554/Streaming/Channels/102/
-#  username: admin
-
-
+    'protocol': tcp
+    
 - camera_id: cam02
   desc: wisenet
   fps: 12
@@ -50,10 +34,10 @@ cameras:
   url: rtsp://admin:Wakeb2030@192.168.126.100:554/profile2/media.smp
   username: admin
   publisher_info:
-    'interface': localhost
+    'interface': 192.168.126.240
     'port': 5556
     'n_threads': 6
-    'protocol': ipc
+    'protocol': tcp
 
 
 
