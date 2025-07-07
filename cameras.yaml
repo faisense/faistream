@@ -16,7 +16,7 @@ cameras:
   publisher_info:
     'interface': 192.168.126.240
     'port': 5555
-    'n_threads': 6
+    'n_threads': 2
     'protocol': tcp
     
 - camera_id: cam02
@@ -36,7 +36,7 @@ cameras:
   publisher_info:
     'interface': 192.168.126.240
     'port': 5556
-    'n_threads': 6
+    'n_threads': 2
     'protocol': tcp
 
 

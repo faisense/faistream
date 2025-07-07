@@ -42,7 +42,7 @@ class OpencvCameraManager(CamerasManager):
         for camera in self.cameras.values():
             camera.process.start()
 
-        # self._status_thread.start()
+        self._status_thread.start()
 
 
     def stop_all(self):

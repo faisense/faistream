@@ -3,7 +3,7 @@ import time
 import cv2
 import numpy as np
 from shared_memory_dict import SharedMemoryDict
-
+import zstandard as zstd
 from faivision.camio.ip import IP
 from faivision.camio.camera_state import CameraState
 from multiprocessing import Process
@@ -137,6 +137,7 @@ class ZMQCamera:
 
         publisher = Publisher(interface,port,n_threads,protocol)
         shared_state_dict = SharedMemoryDict(name='cameras_state', size=1024)
+        cctx = zstd.ZstdCompressor()
 
         self._start_capture()
         while True:
@@ -150,7 +151,7 @@ class ZMQCamera:
                     frame = None
                 if frame is not None:
                     shared_state_dict[cam_name] = CameraState.ONLINE
-                    publisher.get_socket().send(frame.tobytes())
+                    publisher.get_socket().send(cctx.compress(frame.tobytes()))
 
                 else:
                     shared_state_dict[cam_name] = CameraState.OFFLINE
