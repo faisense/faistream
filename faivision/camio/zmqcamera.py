@@ -1,7 +1,9 @@
 import time
+from time import sleep
 
 import cv2
 import numpy as np
+import zmq
 from shared_memory_dict import SharedMemoryDict
 import zstandard as zstd
 from faivision.camio.ip import IP
@@ -25,6 +27,7 @@ class ZMQCamera:
         publisher_info,
         status: CameraState = CameraState.OFFLINE,
         streams_limit: int = 1,
+        is_backup=False
     ):
         self._capture = None
         self.camera_id = camera_id
@@ -41,6 +44,7 @@ class ZMQCamera:
         self._streams_limit = streams_limit
         self.publisher_info = publisher_info
         self.process = Process(target=self._read_frame,kwargs={**self.publisher_info,'cam_name':self.camera_id})
+        self.is_backup = is_backup
 
     def __str__(self):
         attr = [
@@ -108,8 +112,8 @@ class ZMQCamera:
         return ret
 
     def _start_capture(self):
-        print("initlizing new cap")
         if self._capture is None:
+            print("initlizing new cap")
             self._capture = cv2.VideoCapture(self._url)
             self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._resolution[0])
             self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._resolution[1])
@@ -135,33 +139,59 @@ class ZMQCamera:
     def _read_frame(self,interface,port,n_threads,protocol,cam_name):
 
 
-        publisher = Publisher(interface,port,n_threads,protocol)
+
+        publisher = None
         shared_state_dict = SharedMemoryDict(name='cameras_state', size=1024)
+        backup_allowed_state = SharedMemoryDict(name='backup_state', size=1024)
         cctx = zstd.ZstdCompressor()
+        shared_state_dict[self.camera_id] = CameraState.ONLINE
 
         self._start_capture()
         while True:
+
+            if self.is_backup:
+                while not backup_allowed_state[self.camera_id]:
+                    if publisher:
+                        publisher.get_socket().close(0)
+                        publisher.context.term()
+                        publisher = None
+            else:
+                print("cameras states: ", shared_state_dict)
+                print("backup states: ", backup_allowed_state)
+
 
             if self._capture:
                 t1 = time.time()
                 ret, frame = self._capture.read()
                 t2 = time.time()
 
-                if (t2-t1) >= 30:
+                if (t2 - t1) >= 30:
                     frame = None
                 if frame is not None:
-                    shared_state_dict[cam_name] = CameraState.ONLINE
-                    publisher.get_socket().send(cctx.compress(frame.tobytes()))
+                    try:
+                        shared_state_dict[cam_name] = CameraState.ONLINE
 
+                        if publisher is None:
+                            publisher = Publisher(interface,port,n_threads,protocol)
+
+
+                        publisher.get_socket().send(cctx.compress(frame.tobytes()))
+                    except zmq.error.ZMQError:
+                        sleep(1)
+                        print("catch triggered")
                 else:
                     shared_state_dict[cam_name] = CameraState.OFFLINE
+                    if publisher:
+                        publisher.get_socket().close(0)
+                        publisher.context.term()
+                        publisher = None
+
+
                     self.stop_capture()
                     self._start_capture()
 
-
-
-
-
+                if not self.is_backup:
+                    print("continue")
 
     @property
     def resolution(self):

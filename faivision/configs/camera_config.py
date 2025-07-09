@@ -23,19 +23,23 @@ class CamerasConfig(Config):
             timeout=cam_dict.get('timeout', 2),
             status=CameraState[cam_dict.get('status', 'OFFLINE').upper()] if 'status' in cam_dict else CameraState.OFFLINE,
             streams_limit=cam_dict.get('streams_limit', 1),
-            publisher_info=cam_dict['publisher_info']
+            publisher_info=cam_dict['publisher_info'],
+            is_backup = cam_dict.get('is_backup', False)
         )
 
     @staticmethod
-    def _compile(args):
+    def _compile(args:dict):
         cameras_list = args.get('cameras', [])
+        backup_mapping = args.get('backup_mapping', {})
         cameras_dict = {}
         for cam_dict in cameras_list:
             camera = CamerasConfig._create_camera_from_dict(cam_dict)
             cameras_dict[camera.camera_id] = camera
 
         args.clear()
-        args.update(cameras_dict)
+        args.update({"cameras":cameras_dict})
+        args.update({'backup_mapping':backup_mapping})
+        return args
 
     @staticmethod
     def _decompile(args):
@@ -60,6 +64,7 @@ class CamerasConfig(Config):
     @staticmethod
     def generate_template(filename):
         args = {
+            'backup_mapping': {'cam01': 'backup_cam01', 'cam02': 'backup_cam02'},
             'cameras': [
                 {
                     'camera_id': 'cam01',
@@ -69,11 +74,12 @@ class CamerasConfig(Config):
                     'port': 554,
                     'url': 'rtsp://192.168.0.10/stream',
                     'desc': 'Front Door',
-                    'resolution': [1920, 1080],
+                    'resolution': [1080,1920],
                     'fps': 30,
                     'timeout': 2,
                     'streams_limit': 2,
                     'status': 'ONLINE',
+                    'is_backup':False,
                     'publisher_info':{
                         'interface':"localhost",
                         'port':5555,
@@ -91,11 +97,12 @@ class CamerasConfig(Config):
                     'port': 554,
                     'url': 'rtsp://192.168.0.11/stream',
                     'desc': 'Back Door',
-                    'resolution': [1280, 720],
+                    'resolution': [1080,1920],
                     'fps': 25,
                     'timeout': 2,
                     'streams_limit': 1,
                     'status': 'OFFLINE',
+                    'is_backup': False,
                     'publisher_info': {
                         'interface': "localhost",
                         'port': 5555,
@@ -104,7 +111,52 @@ class CamerasConfig(Config):
 
                     }
                 },
-            ]
+                {
+                    'camera_id': 'backup_cam01',
+                    'ip': '192.168.0.11',
+                    'username': 'admin',
+                    'password': 'admin123',
+                    'port': 554,
+                    'url': 'rtsp://192.168.0.11/stream',
+                    'desc': 'Back Door',
+                    'resolution': [1080,1920],
+                    'fps': 25,
+                    'timeout': 2,
+                    'streams_limit': 1,
+                    'status': 'OFFLINE',
+                    'is_backup': True,
+                    'publisher_info': {
+                        'interface': "localhost",
+                        'port': 5555,
+                        'n_threads': 1,
+                        'protocol': 'tcp'
+
+                    }
+                },
+                {
+                    'camera_id': 'backup_cam02',
+                    'ip': '192.168.0.11',
+                    'username': 'admin',
+                    'password': 'admin123',
+                    'port': 554,
+                    'url': 'rtsp://192.168.0.11/stream',
+                    'desc': 'Back Door',
+                    'resolution': [1080,1920],
+                    'fps': 25,
+                    'timeout': 2,
+                    'streams_limit': 1,
+                    'status': 'OFFLINE',
+                    'is_backup': True,
+                    'publisher_info': {
+                        'interface': "localhost",
+                        'port': 5555,
+                        'n_threads': 1,
+                        'protocol': 'tcp'
+
+                    }
+                },
+            ],
+
         }
         if os.path.exists(f"{filename}.yaml"):
             raise FileExistsError(f"{filename}.yaml already exists!")

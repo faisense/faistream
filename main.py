@@ -35,7 +35,7 @@ def worker_inference(model:YOLO,cam_name,cam_resolution:tuple[int,int],interface
         annotated_image = label_annotator.annotate(
             scene=annotated_image, detections=detections, labels=labels)
         t2 = time.time()
-        print(f"{cam_name}, elapsed time: {(t2 - t1)*1000} milliseconds")
+        # print(f"{cam_name}, elapsed time: {(t2 - t1)*1000} milliseconds")
         cv2.imshow(cam_name,annotated_image)
         key = cv2.waitKey(1)
         if key != -1 and chr(key) == "q":
@@ -45,8 +45,7 @@ def worker_inference(model:YOLO,cam_name,cam_resolution:tuple[int,int],interface
 
 if __name__ == "__main__":
 # Load cameras from YAML
-    cameras_dict = CamerasConfig.from_yaml("cameras.yaml")
-
+    cameras_dict = CamerasConfig.from_yaml("new_config.yaml")
 
     camerasManager = OpencvCameraManager(cameras_dict)
     camerasManager.start_all()

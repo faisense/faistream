@@ -5,13 +5,18 @@ class Publisher:
 
         self._socket = self._context.socket(zmq.SocketType.PUB)
         self._socket.setsockopt(zmq.CONFLATE,1)
+        self._socket.setsockopt(zmq.LINGER,0)
         self._socket.bind(f"{protocol}://{interface}:{port}")
 
     def send(self,inputs:bytes):
         self._socket.send(inputs)
 
     def get_socket(self):
-        return self._socket    
+        return self._socket
+
+    @property
+    def context(self):
+        return self._context
 class Subscriber:
     def __init__(self,interface,port,n_threads=1,protocol="tcp"):
 
@@ -26,6 +31,8 @@ class Subscriber:
 
     def get_socket(self):
         return self._socket
+
+
 
 
 

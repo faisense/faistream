@@ -23,8 +23,8 @@ class Config(ABC):
         if os.path.exists(yaml_path):
             with open(yaml_path, mode='r') as f:
                 args = yaml.full_load(f)
-                cls._compile(args)
-                return args
+
+                return cls._compile(args)
         raise FileNotFoundError
 
     @classmethod
