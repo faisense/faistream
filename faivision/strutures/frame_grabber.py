@@ -1,7 +1,7 @@
-from faivision.messaging_system import Subscriber
+from faivision.strutures.messaging_system import Subscriber
 import zstandard as zstd
 import numpy as np
-import cv2
+
 
 class FrameGrabber:
     def __init__(self,cam_resolution:tuple[int,int],interface,port,n_threads=1,protocol="tcp"):

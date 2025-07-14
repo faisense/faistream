@@ -1,23 +1,22 @@
-import multiprocessing
+import json
 from multiprocessing import Process
-from threading import Thread
-from time import sleep
 
 from shared_memory_dict import SharedMemoryDict
-
 from faivision.camio.camera_state import CameraState
 from faivision.camio.zmqcamera import ZMQCamera
 from faivision.camio.managers.cameras_managers import CamerasManager
+from faivision.strutures.messaging_system import Publisher
+
 
 class OpencvCameraManager(CamerasManager):
     def __init__(self, cameras_dict: dict[str, ZMQCamera]):
         super().__init__(cameras_dict.get('cameras',{}))
-        self.backup_mapping = cameras_dict['backup_mapping']
-        print("backup",self.backup_mapping)
+        manager_configs = cameras_dict['manager']
+        self.backup_mapping = manager_configs['backup_mapping']
         self.cameras_states = SharedMemoryDict(name='cameras_state', size=1024)
         self.backup_allowed_state = SharedMemoryDict(name='backup_state', size=1024)
 
-        self._status_thread = Thread(target=self.get_cameras_status)
+        self._status_thread = Process(target=self.publish_cameras_status, kwargs=manager_configs['cameras_state_publisher_info'])
 
         self._backup_handler_thread = Process(target=self._backup_handler)
 
@@ -48,6 +47,7 @@ class OpencvCameraManager(CamerasManager):
 
     def start_all(self):
         self.cameras_states.clear()
+        self.backup_allowed_state.clear()
         for camera in self.cameras.values():
             camera.process.start()
 
@@ -55,7 +55,7 @@ class OpencvCameraManager(CamerasManager):
                 self.backup_allowed_state[camera.camera_id] = False
 
 
-        # self._status_thread.start()
+        self._status_thread.start()
         self._backup_handler_thread.start()
 
 
@@ -63,23 +63,29 @@ class OpencvCameraManager(CamerasManager):
         for camera in self.cameras.values():
             camera.stop_capture()
 
-    def get_cameras_status(self):
+    def publish_cameras_status(self, interface, port, n_threads, protocol):
+        publisher = Publisher(interface, port, n_threads, protocol)
         while True:
-            print(self.cameras_states)
+            data_str = {key: str(value) for key, value in self.cameras_states.items()}
+            data_bytes = json.dumps(data_str).encode('utf-8')
+            publisher.send(data_bytes)
 
 
     def _backup_handler(self):
+        if self.backup_mapping is {}:
+            return
         primary_cameras = [camera for camera in self.cameras.values() if not camera.is_backup]
         while True:
-            # print("i am in backup handler")
-            # print(self.cameras_states)
-            # print(self.backup_allowed_state)
-            # print(self.backup_mapping)
+
             for camera in primary_cameras:
-                if self.cameras_states.get(camera.camera_id,CameraState.ONLINE) == CameraState.ONLINE:
-                    self.backup_allowed_state[self.backup_mapping[camera.camera_id]] = False
-                else:
-                    self.backup_allowed_state[self.backup_mapping[camera.camera_id]] = True
+                try:
+                    if self.cameras_states.get(camera.camera_id,CameraState.ONLINE) == CameraState.ONLINE:
+
+                        self.backup_allowed_state[self.backup_mapping[camera.camera_id]] = False
+                    else:
+                        self.backup_allowed_state[self.backup_mapping[camera.camera_id]] = True
+                except KeyError:
+                    pass
 
 
 

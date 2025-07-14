@@ -2,14 +2,13 @@ import time
 from time import sleep
 
 import cv2
-import numpy as np
 import zmq
 from shared_memory_dict import SharedMemoryDict
 import zstandard as zstd
 from faivision.camio.ip import IP
 from faivision.camio.camera_state import CameraState
 from multiprocessing import Process
-from faivision.messaging_system import Publisher
+from faivision.strutures.messaging_system import Publisher
 
 class ZMQCamera:
     def __init__(
@@ -155,9 +154,7 @@ class ZMQCamera:
                         publisher.get_socket().close(0)
                         publisher.context.term()
                         publisher = None
-            else:
-                print("cameras states: ", shared_state_dict)
-                print("backup states: ", backup_allowed_state)
+
 
 
             if self._capture:
@@ -190,8 +187,7 @@ class ZMQCamera:
                     self.stop_capture()
                     self._start_capture()
 
-                if not self.is_backup:
-                    print("continue")
+
 
     @property
     def resolution(self):

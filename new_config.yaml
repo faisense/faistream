@@ -1,5 +1,12 @@
-backup_mapping:
-  cam02: cam01
+manager:
+  backup_mapping:
+    cam02: cam01
+  cameras_state_publisher_info:
+    interface: 192.168.126.240
+    n_threads: 3
+    port: 6000
+    protocol: tcp
+
 cameras:
 - camera_id: cam01
   desc: Front Door
@@ -8,7 +15,7 @@ cameras:
   password: admin123
   port: 554
   publisher_info:
-    interface: localhost
+    interface: 192.168.126.240
     n_threads: 1
     port: 5555
     protocol: tcp
@@ -29,7 +36,7 @@ cameras:
   password: admin123
   port: 554
   publisher_info:
-    interface: localhost
+    interface: 192.168.126.240
     n_threads: 1
     port: 5555
     protocol: tcp

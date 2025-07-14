@@ -1,7 +1,6 @@
 from abc import ABC,abstractmethod
 
 from faivision.camio.zmqcamera import ZMQCamera
-from faivision.subject import Subject
 
 
 class CamerasManager(ABC):
@@ -32,10 +31,6 @@ class CamerasManager(ABC):
     @abstractmethod
     def stop_all(self):
         pass
-    @abstractmethod
-    def get_cameras_status(self):
-        pass
-
 
     @abstractmethod
     def __repr__(self):
