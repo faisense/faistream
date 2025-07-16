@@ -56,7 +56,7 @@ if __name__ == '__main__':
     while True:
         while True:
             t1 = time.time()
-            frame = frame_grabber.execute()
+            frame = frame_grabber.execute().copy()
             print("i recived the frame")
             output = model.predict(frame, conf=0.6, verbose=False)[0]
             print(cameras_states_grabber.execute())

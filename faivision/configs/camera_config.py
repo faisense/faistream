@@ -4,7 +4,7 @@ import yaml
 from faivision.configs.config import Config
 from faivision.camio.camera_state import CameraState
 from faivision.camio.zmqcamera import ZMQCamera
-from faivision.messaging_system import Publisher
+from faivision.strutures.messaging_system import Publisher
 
 
 class CamerasConfig(Config):
@@ -30,7 +30,7 @@ class CamerasConfig(Config):
     @staticmethod
     def _compile(args:dict):
         cameras_list = args.get('cameras', [])
-        backup_mapping = args.get('backup_mapping', {})
+        manager = args['manager']
         cameras_dict = {}
         for cam_dict in cameras_list:
             camera = CamerasConfig._create_camera_from_dict(cam_dict)
@@ -38,7 +38,7 @@ class CamerasConfig(Config):
 
         args.clear()
         args.update({"cameras":cameras_dict})
-        args.update({'backup_mapping':backup_mapping})
+        args.update({'manager':manager})
         return args
 
     @staticmethod
