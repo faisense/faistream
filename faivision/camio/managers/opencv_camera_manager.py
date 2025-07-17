@@ -16,9 +16,9 @@ class OpencvCameraManager(CamerasManager):
         self.cameras_states = SharedMemoryDict(name='cameras_state', size=1024)
         self.backup_allowed_state = SharedMemoryDict(name='backup_state', size=1024)
 
-        self._status_thread = Process(target=self.publish_cameras_status, kwargs=manager_configs['cameras_state_publisher_info'])
+        self._status_process = Process(target=self.publish_cameras_status, kwargs=manager_configs['cameras_state_publisher_info'])
 
-        self._backup_handler_thread = Process(target=self._backup_handler)
+        self._backup_handler_process = Process(target=self._backup_handler)
 
 
     def camera_counts(self):
@@ -55,8 +55,8 @@ class OpencvCameraManager(CamerasManager):
                 self.backup_allowed_state[camera.camera_id] = False
 
 
-        self._status_thread.start()
-        self._backup_handler_thread.start()
+        self._status_process.start()
+        self._backup_handler_process.start()
 
 
     def stop_all(self):
