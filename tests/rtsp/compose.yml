@@ -1,0 +1,20 @@
+# Integration tests against a real RTSP server (mediamtx) that only accepts UDP:
+#   docker compose -f tests/rtsp/compose.yml run --rm --build tests
+services:
+  rtsp:
+    image: bluenviron/mediamtx:1.21.1-ffmpeg
+    environment:
+      MTX_RTSPTRANSPORTS: udp
+      MTX_PATHS_TEST_RUNONINIT: >-
+        ffmpeg -loglevel error -re -f lavfi -i testsrc=size=1280x720:rate=25
+        -c:v libx264 -preset ultrafast -tune zerolatency -g 25
+        -f rtsp rtsp://localhost:8554/test
+      MTX_PATHS_TEST_RUNONINITRESTART: "yes"
+
+  tests:
+    build:
+      context: ../..
+      dockerfile: tests/rtsp/Dockerfile
+    environment:
+      FAISTREAM_TEST_RTSP_UDP_ONLY: rtsp://rtsp:8554/test
+    depends_on: [rtsp]

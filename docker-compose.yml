@@ -1,0 +1,32 @@
+# One camera, two consumers, both transports:
+#   docker compose up --build
+#
+# local-consumer shares the service's IPC namespace, so it reads frames from
+# shared memory. remote-consumer is a separate "machine" and receives JPEG over TCP.
+services:
+  streamd:
+    build: .
+    image: faistream
+    command: ["serve", "/config/demo.yaml"]
+    volumes:
+      - ./configs/demo.yaml:/config/demo.yaml:ro
+    ipc: shareable
+    shm_size: 256mb
+    ports:
+      - "7300-7301:7300-7301"
+
+  local-consumer:
+    image: faistream
+    command: ["view", "demo", "--stats"]
+    ipc: "service:streamd"
+    network_mode: "service:streamd"
+    depends_on:
+      streamd: {condition: service_healthy}
+    healthcheck: {disable: true}
+
+  remote-consumer:
+    image: faistream
+    command: ["view", "demo", "--stats", "--host", "streamd"]
+    depends_on:
+      streamd: {condition: service_healthy}
+    healthcheck: {disable: true}

@@ -1,0 +1,5 @@
+# Used by docker-compose.yml: a synthetic camera shared locally and over TCP.
+streams:
+  demo:
+    source: synthetic://1280x720@30
+network: true

@@ -1,0 +1,34 @@
+# faistream settings: every option, with its default where it has one.
+#   faistream serve faistream.yaml
+
+streams:
+  # The name is what programs subscribe to: faistream.subscribe("door")
+  door:
+    source: rtsp://admin:${DOOR_PASS}@192.168.1.21:554/Streaming/Channels/101
+    backup: yard                 # optional: another stream's name, a source, or a list
+    rtsp_transport: auto         # optional: auto (TCP first) | tcp | udp
+    fps: 15                      # optional: cap the frame rate
+    size: 1280x720               # optional: resize (WIDTHxHEIGHT)
+    open_timeout: 5              # optional: seconds to wait when connecting
+    read_timeout: 5              # optional: seconds without a frame before reconnecting
+    paused: false                # optional: true stops the stream until set back to false
+
+  yard:
+    source: rtsp://192.168.1.22:554/live/main
+
+  # Anything else OpenCV can read: a video file (plays at its native speed and loops),
+  # a USB camera number, a GStreamer pipeline, or a test pattern.
+  replay:
+    source: ./recordings/lobby.mp4
+  test-pattern:
+    source: synthetic://640x480@15
+
+# Optional: also share frames with other machines over TCP. `network: true` uses these.
+network:
+  codec: jpeg                    # jpeg | raw | zstd
+  quality: 85                    # JPEG quality, 1-100
+  level: 3                       # zstd level: 3 is the sweet spot, higher costs much more CPU
+  bind: 0.0.0.0                  # interface for the network and control ports
+
+port: 7300                       # control port; network streams use the next free ports
+slots: 4                         # frames kept in shared memory per stream

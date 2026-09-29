@@ -1,2 +1,18 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+.DS_Store
+.idea/
+.vscode/
+.env
+# settings can contain camera passwords
+faistream.yaml
+cameras.yaml
 data/
-.idea
+*.pt
